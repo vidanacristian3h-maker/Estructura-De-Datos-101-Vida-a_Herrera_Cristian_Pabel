@@ -1,0 +1,39 @@
+//ACTIVIDAD 2: Como declarar un tipo de dato abstracto 
+//Alumno: Cristian Pabel Vidaña Herrera
+//Fecha: 28/agosto/2025
+//Materia: Estructura de Datos
+
+//ACTIVIDAD 2: Como declarar un tipo de dato abstracto 
+//Alumno: Cristian Pabel Vidaña Herrera
+//Fecha: 28/agosto/2025
+//Materia: Estructura de Datos
+
+// Definición de la clase Persona en JavaScript
+class Persona {
+    // Constructor de la clase
+    constructor(nombre, edad) {
+        this.nombre = nombre;
+        this.edad = edad;
+    }
+
+    // Método para mostrar información de la persona
+    mostrarInfo() {
+        console.log(`Nombre: ${this.nombre}, Edad: ${this.edad}`);
+    }
+}
+
+// Crear una instancia de la clase Persona
+const persona1 = new Persona("Cristian", 20);
+
+// Mostrar la información de la persona
+persona1.mostrarInfo();
+
+// Pausa hasta que el usuario presione Enter (solo funciona en Node.js)
+const readline = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+readline.question('Presiona Enter para salir...', () => {
+    readline.close();
+});
+
