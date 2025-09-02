@@ -1,0 +1,28 @@
+//Actividad: Tarea 3 Arreglos 3 En Uno
+//Alumno: Cristian Pabel Vidaña Herrera
+//Fecha: 1/Septiembre/2025
+//Materia: Estructura de Datos
+
+//• Realizar un algoritmo que haga el recorrido de un arreglo e imprima sus valores. 
+
+
+
+#include <iostream>
+
+int main() {
+
+    int arreglo[] = {1, 2, 3, 4, 5};
+
+    std:: cout << "Elementos del arreglo: ";
+    for (int i = 0; i < 5; i++) {
+        std::cout << arreglo[i] << " ";
+    }
+
+
+
+
+
+
+    std::cout << "Hola mundo" << std::endl;
+    return 0;
+}

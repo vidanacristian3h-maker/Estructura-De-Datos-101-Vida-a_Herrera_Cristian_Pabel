@@ -1,0 +1,63 @@
+//Actividad: Tarea 3 Arreglos 3 En Uno
+//Alumno: Cristian Pabel Vidaña Herrera
+//Fecha: 1/Septiembre/2025
+//Materia: Estructura de Datos
+
+//• Realizar un algoritmo que haga el recorrido de un arreglo e imprima sus valores. 
+
+import java.util.Scanner;
+
+public class Main {
+    
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in); // ← Declarar el Scanner
+
+        System.out.println("Recorrido del arreglo:");
+        int[] arreglo = {1, 2, 3, 4, 5};
+        
+        // Imprimir arreglo original
+        for (int i = 0; i < arreglo.length; i++) {
+            System.out.println("Elemento en índice " + i + ": " + arreglo[i]);
+        }
+
+        // Algoritmo que inserte un valor en un índice (posición) determinado
+        int posicion; // Índice donde se insertará el nuevo valor
+        int valorAgregar; // Valor a insertar
+        
+        System.out.println("\nIngrese la posición (0 a " + (arreglo.length - 1) + ") donde desea insertar el valor:");
+        posicion = sc.nextInt();
+
+        System.out.println("Ingrese el valor que desea insertar:");
+        valorAgregar = sc.nextInt();
+
+        arreglo[posicion] = valorAgregar; // Insertar el nuevo valor
+        
+        // Mostrar arreglo después de la inserción
+        System.out.println("\nArreglo después de la inserción:");
+        for (int i = 0; i < arreglo.length; i++) {
+            System.out.println("Elemento en índice " + i + ": " + arreglo[i]);
+        }
+
+
+        //• ⁠Algoritmo que implemente la búsqueda lineal de un elemento en un arreglo.
+
+        int valorBuscar;
+
+        System.out.println("\nIngrese el valor que desea buscar:");
+        valorBuscar = sc.nextInt();
+
+        for (int i = 0; i < arreglo.length; i++) {
+            if (arreglo[i] == valorBuscar) {
+                System.out.println("Valor " + valorBuscar + " encontrado en el índice " + i);
+                return;
+
+
+            }
+            if (i == arreglo.length - 1) {
+                System.out.println("Valor " + valorBuscar + " no encontrado en el arreglo.");
+            }
+
+        }
+    }
+}
+
