@@ -1,0 +1,38 @@
+public class Main {
+    public static void main(String[] args) {
+        int[][] Arrego = {
+            {1, 2, 3},
+            {4, 5, 6},
+            {7, 8, 9}
+        };
+
+        System.out.println("Arreglo Multidimensional por filas:");
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++) {
+                System.out.print(Arrego[i][j] + " ");
+            }
+            System.out.println();
+        }
+
+        System.out.println("Arreglo Multidimensional por columnas:");
+        for(int j = 0; j < 3; j++) {
+            for(int i = 0; i < 3; i++) {
+                System.out.print(Arrego[i][j] + " ");
+            }
+            System.out.println();
+        }
+
+        int[] Arrego2 = new int[9];
+        int k = 0;
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++) {
+                Arrego2[k++] = Arrego[i][j];
+            }
+        }
+
+        System.out.println("\nArreglo Unidimensional Final:");
+        for(int valor : Arrego2) {
+            System.out.print(valor + " ");
+        }
+    }
+}

@@ -31,10 +31,10 @@ public class Tarea_1_Arreglos_Declarar_Recorrer_Etc {
 
 
      // Pausa hasta que el usuario presione Enter
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Presiona Enter para salir...");
-        scanner.nextLine(); 
-        scanner.close();
+        try (Scanner scanner = new Scanner(System.in)) {
+            System.out.println("Presiona Enter para salir...");
+            scanner.nextLine(); 
+        }
     
     }
 

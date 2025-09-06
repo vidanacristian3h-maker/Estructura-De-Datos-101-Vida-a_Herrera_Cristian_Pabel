@@ -1,0 +1,41 @@
+#include <iostream>
+using namespace std;
+
+int main() {
+    int Arrego[3][3] = {
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9}
+    };
+
+    cout << "Arreglo Multidimensional por filas: " << endl;
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
+            cout << Arrego[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    cout << "Arreglo Multidimensional por columnas: " << endl;
+    for(int j = 0; j < 3; j++) {
+        for(int i = 0; i < 3; i++) {
+            cout << Arrego[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    int Arrego2[9];
+    int k = 0;
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
+            Arrego2[k++] = Arrego[i][j];
+        }
+    }
+
+    cout << "\nArreglo Unidimensional Final: " << endl;
+    for(int i = 0; i < 9; i++) {
+        cout << Arrego2[i] << " ";
+    }
+
+    return 0;
+}

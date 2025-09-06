@@ -1,0 +1,52 @@
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        int[,] Arrego = {
+            {1, 2, 3},
+            {4, 5, 6},
+            {7, 8, 9}
+        };
+
+        Console.WriteLine("Arreglo Multidimensional por filas: ");
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                Console.Write(Arrego[i, j] + " ");
+            }
+            Console.WriteLine();
+        }
+
+        Console.WriteLine("Arreglo Multidimensional por columnas: ");
+        for (int j = 0; j < 3; j++)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                Console.Write(Arrego[i, j] + " ");
+            }
+            Console.WriteLine();
+        }
+
+        int filas = Arrego.GetLength(0);
+        int columnas = Arrego.GetLength(1);
+        int[] Arrego2 = new int[filas * columnas];
+
+        int k = 0;
+        for (int i = 0; i < filas; i++)
+        {
+            for (int j = 0; j < columnas; j++)
+            {
+                Arrego2[k++] = Arrego[i, j];
+            }
+        }
+
+        Console.WriteLine("\nArreglo Unidimensional Final: ");
+        foreach (var valor in Arrego2)
+        {
+            Console.Write(valor + " ");
+        }
+    }
+}
