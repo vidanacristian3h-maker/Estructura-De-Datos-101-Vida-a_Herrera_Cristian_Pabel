@@ -40,3 +40,42 @@
 # debug information files
 *.dwo
 Actividades en el lenguaje C\#/Tarea 1 Arreglos-Declarar-Recorrer-Etc/obj/Tarea 1 Arreglos-Declarar-Recorrer-Etc.csproj.nuget.dgspec.json
+*.vsidx
+
+# === Visual Studio & .NET ===
+
+# Carpetas de compilación
+bin/
+obj/
+Debug/
+Release/
+x64/
+x86/
+
+# Archivos temporales y de caché
+*.log
+*.tlog
+*.cache
+*.db-shm
+*.db-wal
+
+# Archivos de dependencias
+*.deps.json
+*.nuget/
+*.nupkg
+project.lock.json
+project.fragment.lock.json
+
+# Configuración de proyectos NuGet
+*.nuget.dgspec.json
+*.nuget.g.props
+*.nuget.g.targets
+project.assets.json
+
+# Archivos de configuración generados automáticamente
+*.props
+*.targets
+
+# Carpetas de configuración de Visual Studio
+.vs/
+.vscode/
