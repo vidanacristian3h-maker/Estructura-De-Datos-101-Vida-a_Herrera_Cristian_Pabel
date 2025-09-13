@@ -1,0 +1,27 @@
+# Declarar arreglo bidimensional
+Arrego = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+
+print("Arreglo Multidimensional por filas:")
+for fila in Arrego:
+    for valor in fila:
+        print(valor, end=" ")
+    print()
+
+print("Arreglo Multidimensional por columnas:")
+for j in range(3):
+    for i in range(3):
+        print(Arrego[i][j], end=" ")
+    print()
+
+# Convertir a unidimensional
+Arrego2 = []
+for i in range(3):
+    for j in range(3):
+        Arrego2.append(Arrego[i][j])
+
+print("\nArreglo Unidimensional Final:")
+print(*Arrego2)

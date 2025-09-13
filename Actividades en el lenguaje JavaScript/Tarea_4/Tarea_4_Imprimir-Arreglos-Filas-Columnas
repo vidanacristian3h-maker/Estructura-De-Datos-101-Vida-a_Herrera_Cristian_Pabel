@@ -1,0 +1,30 @@
+let Arrego = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+];
+
+console.log("Arreglo Multidimensional por filas:");
+for(let i = 0; i < 3; i++) {
+    console.log(Arrego[i].join(" "));
+}
+
+console.log("Arreglo Multidimensional por columnas:");
+for(let j = 0; j < 3; j++) {
+    let columna = [];
+    for(let i = 0; i < 3; i++) {
+        columna.push(Arrego[i][j]);
+    }
+    console.log(columna.join(" "));
+}
+
+// Convertir a unidimensional
+let Arrego2 = [];
+for(let i = 0; i < 3; i++) {
+    for(let j = 0; j < 3; j++) {
+        Arrego2.push(Arrego[i][j]);
+    }
+}
+
+console.log("\nArreglo Unidimensional Final:");
+console.log(Arrego2.join(" "));
