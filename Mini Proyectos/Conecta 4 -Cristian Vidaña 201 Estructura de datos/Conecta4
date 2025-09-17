@@ -1,0 +1,179 @@
+import java.util.Scanner;
+
+public class Main {
+
+    // ------------------ CONSTANTES DEL JUEGO ------------------
+    static final int FILAS = 6;       // Número de filas del tablero
+    static final int COLUMNAS = 7;    // Número de columnas del tablero
+
+    // ------------------ FUNCIONES AUXILIARES ------------------
+
+    // FUNCTION PARA MOSTRAR EL TABLERO VISUAL
+    static void mostrarTablero(char[][] tablero) {
+        System.out.println();
+        for (int i = 0; i < FILAS; i++) {
+            for (int j = 0; j < COLUMNAS; j++) {
+                System.out.print(tablero[i][j]);              // muestra símbolo (X, O o espacio)
+                if (j < COLUMNAS - 1) System.out.print(" | "); // separador entre columnas
+            }
+            System.out.println();
+            if (i < FILAS - 1) {
+                for (int j = 0; j < COLUMNAS; j++) {
+                    System.out.print("--");                  // separador de filas
+                    if (j < COLUMNAS - 1) System.out.print("+");
+                }
+                System.out.println();
+            }
+        }
+        // Mostrar índices de columnas (1 al 7)
+        for (int j = 1; j <= COLUMNAS; j++) {
+            System.out.print(" " + j + "  ");
+        }
+        System.out.println("\n");
+    }
+
+    // FUNCTION PARA VERIFICAR GANADOR USANDO EL TABLERO NUMÉRICO
+    // Devuelve 1 si ganó X, -1 si ganó O, 0 si nadie
+    static int verificarGanador(int[][] t) {
+        // Revisar filas (horizontal)
+        for (int i = 0; i < FILAS; i++) {
+            for (int j = 0; j <= COLUMNAS - 4; j++) {
+                int suma = t[i][j] + t[i][j+1] + t[i][j+2] + t[i][j+3];
+                if (suma == 4) return 1;     // X gana
+                if (suma == -4) return -1;   // O gana
+            }
+        }
+        // Revisar columnas (vertical)
+        for (int j = 0; j < COLUMNAS; j++) {
+            for (int i = 0; i <= FILAS - 4; i++) {
+                int suma = t[i][j] + t[i+1][j] + t[i+2][j] + t[i+3][j];
+                if (suma == 4) return 1;
+                if (suma == -4) return -1;
+            }
+        }
+        // Revisar diagonales ↘
+        for (int i = 0; i <= FILAS - 4; i++) {
+            for (int j = 0; j <= COLUMNAS - 4; j++) {
+                int suma = t[i][j] + t[i+1][j+1] + t[i+2][j+2] + t[i+3][j+3];
+                if (suma == 4) return 1;
+                if (suma == -4) return -1;
+            }
+        }
+        // Revisar diagonales ↙
+        for (int i = 0; i <= FILAS - 4; i++) {
+            for (int j = 3; j < COLUMNAS; j++) {
+                int suma = t[i][j] + t[i+1][j-1] + t[i+2][j-2] + t[i+3][j-3];
+                if (suma == 4) return 1;
+                if (suma == -4) return -1;
+            }
+        }
+        return 0; // nadie ganó todavía
+    }
+
+    // FUNCTION PARA VERIFICAR SI HAY EMPATE
+    // Si todas las casillas de arriba están llenas y nadie ganó → empate
+    static boolean empate(int[][] t) {
+        for (int j = 0; j < COLUMNAS; j++) {
+            if (t[0][j] == 0) return false; // si hay al menos una vacía no es empate
+        }
+        return true;
+    }
+
+    // FUNCTION PARA COLOCAR FICHA EN UNA COLUMNA
+    // Busca de abajo hacia arriba la primera casilla libre
+    static boolean colocarFicha(char[][] tablero, int[][] tableroNum, int col, char jugador) {
+        for (int i = FILAS - 1; i >= 0; i--) {
+            if (tablero[i][col] == ' ') { // si está libre
+                tablero[i][col] = jugador;                       // pone X o O en el tablero visual
+                tableroNum[i][col] = (jugador == 'X') ? 1 : -1;  // pone 1 si X, -1 si O en el tablero numérico
+                return true; // ficha colocada con éxito
+            }
+        }
+        return false; // columna llena
+    }
+
+    // ------------------ PROGRAMA PRINCIPAL ------------------
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // Declaración de los tableros
+        char[][] tablero = new char[FILAS][COLUMNAS];    // tablero visual
+        int[][] tableroNum = new int[FILAS][COLUMNAS];   // tablero numérico
+
+        // Inicializar ambos tableros vacíos
+        for (int i = 0; i < FILAS; i++) {
+            for (int j = 0; j < COLUMNAS; j++) {
+                tablero[i][j] = ' ';
+                tableroNum[i][j] = 0;
+            }
+        }
+
+        // ----- INTRODUCCIÓN -----
+        System.out.println("####  CONECTA 4  ####   --Versión Java--");
+        System.out.println("Reglas: Gana quien conecte 4 en línea (horizontal, vertical o diagonal).");
+
+        // Preguntar si iniciar juego
+        char decision;
+        boolean decisionEnBool = false;
+        do {
+            System.out.print("Empezar juego (y/n): ");
+            decision = sc.next().charAt(0);
+            if (decision == 'y') decisionEnBool = true;
+        } while (!decisionEnBool);
+
+        // ----- DECLARACIÓN ANTES DE INICIAR -----
+        boolean juegoTerminado = false;
+        char jugadorActual = 'X'; // empieza jugador X
+
+        // ----------- COMIENZA EL JUEGO -----------
+        do {
+            int columnaElegida;
+            System.out.println("\nTurno del jugador '" + jugadorActual + "': (elige columna del 1 al 7)");
+            mostrarTablero(tablero); // mostrar tablero actual
+
+            System.out.print("Columna: ");
+            columnaElegida = sc.nextInt();
+
+            // Validar columna elegida
+            if (columnaElegida < 1 || columnaElegida > COLUMNAS) {
+                System.out.println("Columna inválida, intenta de nuevo.");
+                continue;
+            }
+
+            // Intentar colocar ficha en la columna elegida
+            if (!colocarFicha(tablero, tableroNum, columnaElegida - 1, jugadorActual)) {
+                System.out.println("Columna llena, elige otra.");
+                continue;
+            }
+
+            // Verificar si alguien ganó
+            int resultado = verificarGanador(tableroNum);
+
+            // compara si el resultado es 1 → ganó X
+            if (resultado == 1) {
+                mostrarTablero(tablero);
+                System.out.println("\n¡El jugador 'X' ha ganado!");
+                juegoTerminado = true;
+            }
+            // compara si el resultado es -1 → ganó O
+            else if (resultado == -1) {
+                mostrarTablero(tablero);
+                System.out.println("\n¡El jugador 'O' ha ganado!");
+                juegoTerminado = true;
+            }
+            // Verificar empate
+            else if (empate(tableroNum)) {
+                mostrarTablero(tablero);
+                System.out.println("\n¡Empate!");
+                juegoTerminado = true;
+            }
+            else {
+                // Cambiar turno usando operador ternario
+                jugadorActual = (jugadorActual == 'X') ? 'O' : 'X';
+            }
+
+        } while (!juegoTerminado);
+
+        sc.close();
+    }
+}
