@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class Main {
+public class Conecta4 {
 
     // ------------------ CONSTANTES DEL JUEGO ------------------
     static final int FILAS = 6;       // Número de filas del tablero
