@@ -13,6 +13,7 @@ struct Persona {
     int edad;       // atributo edad
 };
 
+
 int main() {
     // Arreglo de estructuras Persona
     Persona personas[3] = {

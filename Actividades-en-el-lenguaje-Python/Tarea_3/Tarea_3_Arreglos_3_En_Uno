@@ -22,8 +22,8 @@ if 0 <= posicion < len(arreglo):
 else:
     print("Posición inválida. Por favor ingrese una posición entre 0 y 4.")
 
-    #W• ⁠Algoritmo que implemente la búsqueda lineal de un elemento en un arreglo.
-
+#• ⁠Algoritmo que implemente la búsqueda  de un elemento en un arreglo.
+ 
 elemento_a_buscar = int(input("Ingrese el elemento que desea buscar en el arreglo: "))
 
 for i in range(len(arreglo)):
