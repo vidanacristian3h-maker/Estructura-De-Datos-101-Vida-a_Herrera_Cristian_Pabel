@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Batalla Naval - Colocar Barcos</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      font-family: sans-serif;
+      background: #f1f5f9;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #controles {
+      margin-bottom: 20px;
+    }
+    #turno {
+      margin-bottom: 10px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .tablero {
+      display: grid;
+      grid-template-columns: repeat(10, 30px);
+      grid-template-rows: repeat(10, 30px);
+      gap: 2px;
+      margin: 0 auto;
+    }
+    .celda {
+      width: 30px;
+      height: 30px;
+      background: #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* Colores diferentes para cada tipo de barco */
+    .portaaviones { background: #1e40af; color: white; }  /* Azul fuerte */
+    .acorazado   { background: #059669; color: white; }  /* Verde */
+    .submarino   { background: #b91c1c; color: white; }  /* Rojo */
+    .crucero     { background: #9333ea; color: white; }  /* Morado */
+    .lancha      { background: #f59e0b; color: black; }  /* Amarillo */
+  </style>
+</head>
+<body>
+  <h1>Batalla Naval — Colocar Barcos</h1>
+
+  <div id="controles">
+    <label>Selecciona barco:</label>
+    <select id="seleccionarBarco">
+      <option value="portaaviones">Portaaviones (5)</option>
+      <option value="acorazado">Acorazado (4)</option>
+      <option value="submarino">Submarino (3)</option>
+      <option value="crucero">Crucero (3)</option>
+      <option value="lancha">Lancha (2)</option>
+    </select>
+    <button id="botonOrientacion">Orientación: <span id="orientacion">H</span></button>
+  </div>
+
+  <div id="turno">Turno: Jugador 1</div>
+  <div id="tablero" class="tablero"></div>
+
+  <script>
+    // --------------------------
+    // VARIABLES PRINCIPALES
+    // --------------------------
+
+    const tableroElemento = document.getElementById("tablero");
+    const orientacionElemento = document.getElementById("orientacion");
+    const botonOrientacion = document.getElementById("botonOrientacion");
+    const seleccionarBarco = document.getElementById("seleccionarBarco");
+    const turnoElemento = document.getElementById("turno");
+
+    const TAMANO_TABLERO = 10;
+
+    // Crear tableros separados para cada jugador (arreglos de 100 posiciones)
+    const tableroJugador1 = Array(TAMANO_TABLERO * TAMANO_TABLERO).fill(null);
+    const tableroJugador2 = Array(TAMANO_TABLERO * TAMANO_TABLERO).fill(null);
+
+    // Límite de barcos por tipo
+    const limiteBarcos = { portaaviones:1, acorazado:2, submarino:3, crucero:3, lancha:4 };
+
+    // Barcos colocados por cada jugador
+    const barcosColocados = {1: {}, 2: {}};
+
+    // Tamaño de cada barco
+    const barcos = {portaaviones:5, acorazado:4, submarino:3, crucero:3, lancha:2};
+
+    // Colores de los barcos
+    const coloresBarcos = {
+      portaaviones: "portaaviones",
+      acorazado: "acorazado",
+      submarino: "submarino",
+      crucero: "crucero",
+      lancha: "lancha"
+    };
+
+    let orientacion = "H";   // Horizontal por defecto
+    let jugadorActual = 1;   // Empieza Jugador 1
+
+    // Contar cuántos barcos faltan por colocar
+    let barcosPorColocar = {1:0, 2:0};
+    for(const tipo in limiteBarcos){
+      barcosPorColocar[1] += limiteBarcos[tipo];
+      barcosPorColocar[2] += limiteBarcos[tipo];
+    }
+
+    // --------------------------
+    // FUNCIONES
+    // --------------------------
+
+    // Cambiar orientación entre H y V
+    botonOrientacion.addEventListener("click", ()=>{
+      orientacion = orientacion === "H" ? "V" : "H";
+      orientacionElemento.textContent = orientacion;
+    });
+
+    // Obtener el tablero según el jugador actual
+    function obtenerTablero(){
+      return jugadorActual === 1 ? tableroJugador1 : tableroJugador2;
+    }
+
+    // Dibujar tablero en pantalla
+    function dibujarTablero(){
+      const tablero = obtenerTablero();
+      tableroElemento.innerHTML = "";
+      for(let i=0;i<tablero.length;i++){
+        const celda = document.createElement("div");
+        celda.className = "celda";
+
+        if(tablero[i]) {
+          // Poner color según el tipo de barco
+          celda.classList.add(coloresBarcos[tablero[i]]);
+        }
+
+        celda.dataset.index = i;
+        celda.addEventListener("click", ()=>colocarBarco(i));
+        tableroElemento.appendChild(celda);
+      }
+    }
+
+    // Colocar un barco en el tablero
+    function colocarBarco(indiceInicial){
+      const tablero = obtenerTablero();
+      const tipoBarco = seleccionarBarco.value;
+
+      // Revisar límite de barcos de este tipo
+      if(!barcosColocados[jugadorActual][tipoBarco]) barcosColocados[jugadorActual][tipoBarco] = 0;
+      if(barcosColocados[jugadorActual][tipoBarco] >= limiteBarcos[tipoBarco]){
+        alert(`Ya colocaste el máximo de ${tipoBarco} (${limiteBarcos[tipoBarco]})`);
+        return;
+      }
+
+      const tamano = barcos[tipoBarco];
+      const fila = Math.floor(indiceInicial / TAMANO_TABLERO);
+      const columna = indiceInicial % TAMANO_TABLERO;
+      const celdas = [];
+
+      // Validar espacio disponible
+      for(let i=0;i<tamano;i++){
+        const f = orientacion === "H" ? fila : fila+i;
+        const c = orientacion === "H" ? columna+i : columna;
+        if(f>=TAMANO_TABLERO || c>=TAMANO_TABLERO){ 
+          alert("No cabe el barco en esa posición"); 
+          return; 
+        }
+        const idx = f*TAMANO_TABLERO+c;
+        if(tablero[idx]){ 
+          alert("Ya hay un barco en esa posición"); 
+          return; 
+        }
+        celdas.push(idx);
+      }
+
+      // Colocar barco en el tablero
+      for(const idx of celdas) tablero[idx] = tipoBarco;
+      barcosColocados[jugadorActual][tipoBarco]++;
+      barcosPorColocar[jugadorActual]--;
+
+      dibujarTablero();
+
+      // Si ya colocó todos los barcos
+      if(barcosPorColocar[jugadorActual]===0){
+        if(jugadorActual===1){
+          alert("Jugador 1 ha terminado. Turno del Jugador 2.");
+          jugadorActual=2;
+        }else{
+          alert("Jugador 2 ha terminado. ¡Comienza la partida!");
+        }
+      }
+      turnoElemento.textContent = `Turno: Jugador ${jugadorActual}`;
+    }
+
+    // Inicializar tablero
+    dibujarTablero();
+  </script>
+</body>
+</html>
