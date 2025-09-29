@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1759177632 source:d:\usuarios\vidan\documentos\uas\materias\3er semestre\estructuras de datos\codigos\c++\quick sort\main.cpp
+	<iostream>
+	<cstdlib>
+	<ctime>
+
