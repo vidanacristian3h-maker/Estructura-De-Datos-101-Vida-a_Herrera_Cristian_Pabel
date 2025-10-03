@@ -3,12 +3,12 @@
 #include <ctime>
 using namespace std;
 
-// Función QuickSort (recursiva)
+// Funciï¿½n QuickSort (recursiva)
 void quickSort(int arr[], int inicio, int fin) {
     int i = inicio, j = fin;
     int pivote = arr[(inicio + fin) / 2]; // Pivote en el centro
 
-    // Reordenar la lista según el pivote
+    // Reordenar la lista segï¿½n el pivote
     while (i <= j) {
         while (arr[i] < pivote) i++; // mover izquierda hasta encontrar mayor
         while (arr[j] > pivote) j--; // mover derecha hasta encontrar menor
@@ -22,17 +22,17 @@ void quickSort(int arr[], int inicio, int fin) {
         }
     }
 
-    // Recursión en las dos mitades
+    // Recursiï¿½n en las dos mitades
     if (inicio < j) quickSort(arr, inicio, j);
     if (i < fin) quickSort(arr, i, fin);
 }
 
 int main() {
-    srand(time(0)); // Semilla para números aleatorios
+    srand(time(0)); // Semilla para nï¿½meros aleatorios
     const int n = 15;
     int arr[n];
 
-    // Generar 15 números aleatorios entre 0 y 99
+    // Generar 15 nï¿½meros aleatorios entre 0 y 99
     for (int i = 0; i < n; i++) arr[i] = rand() % 100;
 
     // Mostrar antes
@@ -43,7 +43,8 @@ int main() {
     // Ordenar con QuickSort
     quickSort(arr, 0, n - 1);
 
-    // Mostrar después
+    // Mostrar despuï¿½s
     cout << "Despues: ";
     for (int i = 0; i < n; i++) cout << arr[i] << " ";
 }
+
