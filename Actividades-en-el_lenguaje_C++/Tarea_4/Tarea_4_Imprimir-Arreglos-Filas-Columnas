@@ -23,7 +23,7 @@ int main() {
         }
         cout << endl;
     }
-
+    // Convertir a arreglo unidimensional
     int Arrego2[9];
     int k = 0;
     for(int i = 0; i < 3; i++) {

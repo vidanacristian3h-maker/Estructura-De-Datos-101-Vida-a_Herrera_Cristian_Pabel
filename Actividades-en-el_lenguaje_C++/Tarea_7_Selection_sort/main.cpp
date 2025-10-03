@@ -25,6 +25,8 @@ int main() {
     for (int i = 0; i < n - 1; i++) {
         int PosicionMenor = i; // asumimos que el menor está en i
         for (int j = i + 1; j < n; j++) {
+            
+            //comparamos para encontrar el menor
             if (Numeros[j] < Numeros[PosicionMenor]) {
                 PosicionMenor = j; // encontramos un número más pequeño
             }
