@@ -3,7 +3,7 @@
 #include <ctime>
 using namespace std;
 
-// Función para mezclar dos mitades ordenadas
+// Funciï¿½n para mezclar dos mitades ordenadas
 void merge(int arr[], int inicio, int medio, int fin) {
     int n1 = medio - inicio + 1;
     int n2 = fin - medio;
@@ -33,7 +33,7 @@ void merge(int arr[], int inicio, int medio, int fin) {
     while (j < n2) arr[k++] = derecha[j++];
 }
 
-// Función MergeSort (recursiva)
+// Funciï¿½n MergeSort (recursiva)
 void mergeSort(int arr[], int inicio, int fin) {
     if (inicio < fin) {
         int medio = (inicio + fin) / 2;

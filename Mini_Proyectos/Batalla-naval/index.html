@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Batalla Naval</title>
+<style>
+body {
+  font-family: sans-serif;
+  background: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  min-height: 100vh;
+}
+h1 { margin: 10px; }
+#controles { margin-bottom: 20px; }
+#turno { margin: 15px; font-weight: bold; font-size: 18px; }
+.contenedor {
+  display: flex;
+  gap: 40px;
+  margin-top: 10px;
+  align-items: flex-start;
+}
+.tablero {
+  display: grid;
+  grid-template-columns: repeat(10, 30px);
+  grid-template-rows: repeat(10, 30px);
+  gap: 2px;
+  margin-top: 5px;
+}
+.celda {
+  width: 30px;
+  height: 30px;
+  background: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+/* Colores barcos */
+.portaaviones { background: #1e40af; color: white; }
+.acorazado   { background: #059669; color: white; }
+.submarino   { background: #b91c1c; color: white; }
+.crucero     { background: #9333ea; color: white; }
+.lancha      { background: #f59e0b; color: black; }
+/* Ataques */
+.agua { background: #94a3b8; }
+.tocado { background: red; color: white; }
+/* Panel estado */
+.estado {
+  background: #e2e8f0;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  min-width: 120px;
+}
+.seccion { display: none; }
+.activo { display: block; }
+#batalla .contenedor { align-items: flex-start; }
+</style>
+</head>
+<body>
+<h1>Batalla Naval</h1>
+
+<div id="controles">
+  <label>Selecciona barco:</label>
+  <select id="seleccionarBarco">
+    <option value="portaaviones">Portaaviones (5)</option>
+    <option value="acorazado">Acorazado (4)</option>
+    <option value="submarino">Submarino (3)</option>
+    <option value="crucero">Crucero (3)</option>
+    <option value="lancha">Lancha (2)</option>
+  </select>
+  <button id="botonOrientacion">Orientación: <span id="orientacion">H</span></button>
+</div>
+
+<div id="turno">Turno: Jugador 1 (coloca barcos) </div>
+
+<div id="seccion1" class="seccion activo">
+  <h3>Jugador 1</h3>
+  <div class="contenedor">
+    <div id="tablero1" class="tablero"></div>
+    <div id="estado1" class="estado"></div>
+  </div>
+</div>
+
+<div id="seccion2" class="seccion">
+  <h3>Jugador 2</h3>
+  <div class="contenedor">
+    <div id="tablero2" class="tablero"></div>
+    <div id="estado2" class="estado"></div>
+  </div>
+</div>
+
+<div id="batalla" class="seccion">
+  <div class="contenedor">
+    <div>
+      <h3>Tu zona</h3>
+      <div id="zona" class="tablero"></div>
+    </div>
+    <div>
+      <h3>Radar</h3>
+      <div id="radar" class="tablero"></div>
+    </div>
+    <div>
+      <h3>Barcos restantes</h3>
+      <div id="estadoBarcos" class="estado"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TAMANO = 10;
+const tablero1 = Array(TAMANO*TAMANO).fill(null);
+const tablero2 = Array(TAMANO*TAMANO).fill(null);
+
+const limite = {portaaviones:1, acorazado:2, submarino:3, crucero:3, lancha:4};
+const barcos = {portaaviones:5, acorazado:4, submarino:3, crucero:3, lancha:2};
+const colores = {portaaviones:"portaaviones", acorazado:"acorazado", submarino:"submarino", crucero:"crucero", lancha:"lancha"};
+
+const tablero1El = document.getElementById("tablero1");
+const tablero2El = document.getElementById("tablero2");
+const zonaEl = document.getElementById("zona");
+const radarEl = document.getElementById("radar");
+const orientacionEl = document.getElementById("orientacion");
+const seleccionarBarco = document.getElementById("seleccionarBarco");
+const turnoEl = document.getElementById("turno");
+const estado1 = document.getElementById("estado1");
+const estado2 = document.getElementById("estado2");
+const estadoBarcos = document.getElementById("estadoBarcos");
+
+const seccion1 = document.getElementById("seccion1");
+const seccion2 = document.getElementById("seccion2");
+const batalla = document.getElementById("batalla");
+
+let orientacion = "H";
+let jugadorActual = 1;
+let faseColocacion = true;
+let reubicando = null;
+
+const colocados = {1:{}, 2:{}};
+const barcosPorColocar = {1:0, 2:0};
+for(const tipo in limite){
+  barcosPorColocar[1]+=limite[tipo];
+  barcosPorColocar[2]+=limite[tipo];
+}
+
+const vidaBarcos = {1:{}, 2:{}};
+
+document.getElementById("botonOrientacion").addEventListener("click", ()=>{
+  orientacion = orientacion==="H"?"V":"H";
+  orientacionEl.textContent = orientacion;
+});
+
+function dibujar(tablero, elemento, ocultar, callback){
+  elemento.innerHTML = "";
+  for(let i=0;i<tablero.length;i++){
+    const celda = document.createElement("div");
+    celda.className = "celda";
+
+    if(tablero[i]){
+      if(tablero[i]==="agua") celda.classList.add("agua");
+      else if(tablero[i]==="tocado") celda.classList.add("tocado");
+      else if(!ocultar) celda.classList.add(colores[tablero[i]]);
+    }
+
+    celda.dataset.index = i;
+    if(callback) celda.addEventListener("click", ()=>callback(i));
+    elemento.appendChild(celda);
+  }
+}
+
+// Manejo de colocación y reubicación
+function colocarOReubicar(indice){
+  const tablero = jugadorActual===1?tablero1:tablero2;
+  const tipoSeleccionado = seleccionarBarco.value;
+
+  // Si se hace clic en un barco existente: iniciar reubicación
+  if(!reubicando && tablero[indice]){
+    const tipo = tablero[indice];
+    for(const barco of vidaBarcos[jugadorActual][tipo]){
+      if(barco.celdas.includes(indice)){
+        reubicando = barco;
+        alert("Selecciona nueva posición para tu "+tipo);
+        return;
+      }
+    }
+  }
+
+  const tipo = reubicando ? reubicando.tipo : tipoSeleccionado;
+
+  if(!reubicando){
+    if(!colocados[jugadorActual][tipo]) colocados[jugadorActual][tipo]=0;
+    if(colocados[jugadorActual][tipo]>=limite[tipo]){
+      alert("Ya colocaste todos los "+tipo);
+      return;
+    }
+  }
+
+  const tam = barcos[tipo];
+  const fila = Math.floor(indice/TAMANO);
+  const col = indice%TAMANO;
+  const celdas=[];
+  for(let i=0;i<tam;i++){
+    const f = orientacion==="H"?fila:fila+i;
+    const c = orientacion==="H"?col+i:col;
+    if(f>=TAMANO||c>=TAMANO){
+      alert("No cabe aquí");
+      return;
+    }
+    const idx = f*TAMANO+c;
+    if(tablero[idx] && (!reubicando || !reubicando.celdas.includes(idx))){
+      alert("Ya hay algo aquí");
+      return;
+    }
+    celdas.push(idx);
+  }
+
+  // Limpiar si es reubicación
+  if(reubicando){
+    for(const c of reubicando.celdas) tablero[c]=null;
+    reubicando.celdas = celdas;
+    reubicando.vida = tam;
+    for(const idx of celdas) tablero[idx]=tipo;
+    reubicando = null;
+  } else {
+    for(const idx of celdas) tablero[idx]=tipo;
+    colocados[jugadorActual][tipo]++;
+    barcosPorColocar[jugadorActual]--;
+    if(!vidaBarcos[jugadorActual][tipo]) vidaBarcos[jugadorActual][tipo]=[];
+    vidaBarcos[jugadorActual][tipo].push({tipo: tipo, celdas: celdas, vida: tam});
+  }
+
+  actualizar();
+
+  if(barcosPorColocar[jugadorActual]===0 && !reubicando){
+    if(jugadorActual===1){
+      alert("Jugador 1 listo. Ahora Jugador 2 coloca.");
+      seccion1.classList.remove("activo");
+      seccion2.classList.add("activo");
+      jugadorActual=2;
+      actualizar();
+    } else {
+      alert("¡Comienza la batalla!");
+      seccion2.classList.remove("activo");
+      batalla.classList.add("activo");
+      faseColocacion=false;
+      jugadorActual=1;
+      actualizar();
+    }
+  }
+}
+
+// Ataque
+function atacar(indice){
+  const enemigoTablero = jugadorActual===1?tablero2:tablero1;
+  const enemigoVida = jugadorActual===1?vidaBarcos[2]:vidaBarcos[1];
+
+  if(enemigoTablero[indice]==="agua"||enemigoTablero[indice]==="tocado"){
+    alert("Ya atacaste ahí");
+    return;
+  }
+
+  let barcoEncontrado = null;
+  for(const tipo in enemigoVida){
+    for(const barco of enemigoVida[tipo]){
+      if(barco.celdas.includes(indice)){
+        barcoEncontrado = barco;
+        break;
+      }
+    }
+    if(barcoEncontrado) break;
+  }
+
+  if(barcoEncontrado){
+    const medio = Math.floor(barcoEncontrado.celdas.length/2);
+    if(barcoEncontrado.celdas.indexOf(indice)===medio){
+      barcoEncontrado.vida=0;
+      for(const c of barcoEncontrado.celdas) enemigoTablero[c]="tocado";
+      alert("¡Golpe crítico! Barco hundido.");
+    } else {
+      barcoEncontrado.vida--;
+      enemigoTablero[indice]="tocado";
+      alert("¡Tocado!");
+    }
+  } else {
+    enemigoTablero[indice]="agua";
+    alert("Agua");
+  }
+
+  if(!barcoEncontrado || barcoEncontrado.vida<=0) jugadorActual = jugadorActual===1?2:1;
+
+  if(verificarVictoria(enemigoTablero)){
+    alert("¡Jugador "+jugadorActual+" gana!");
+    batalla.classList.remove("activo");
+  }
+
+  actualizar();
+}
+
+function verificarVictoria(tablero){
+  return tablero.every(c=>!c||c==="agua"||c==="tocado");
+}
+
+function actualizarEstadosColocacion(){
+  for(let j=1;j<=2;j++){
+    let texto="";
+    for(const tipo in limite){
+      const usados = colocados[j][tipo] || 0;
+      texto+=`${tipo}: ${usados}/${limite[tipo]}<br>`;
+    }
+    (j===1?estado1:estado2).innerHTML = texto;
+  }
+}
+
+function actualizarEstadosBatalla(){
+  let texto="";
+  const tableroJugador = jugadorActual===1?vidaBarcos[1]:vidaBarcos[2];
+  for(const tipo in tableroJugador){
+    for(const barco of tableroJugador[tipo]){
+      texto+=`${barco.tipo}: ${barco.vida}/${barco.celdas.length}<br>`;
+    }
+  }
+  estadoBarcos.innerHTML = texto;
+}
+
+function actualizar(){
+  if(faseColocacion){
+    const tablero = jugadorActual===1?tablero1:tablero2;
+    dibujar(tablero, jugadorActual===1?tablero1El:tablero2El, false, colocarOReubicar);
+    turnoEl.textContent = `Turno: Jugador ${jugadorActual} (coloca barcos)`;
+    actualizarEstadosColocacion();
+  } else {
+    const miTablero = jugadorActual===1?tablero1:tablero2;
+    const rival = jugadorActual===1?tablero2:tablero1;
+    dibujar(miTablero, zonaEl, false, null);
+    dibujar(rival, radarEl, true, atacar);
+    turnoEl.textContent = `Turno: Jugador ${jugadorActual} (ataca)`;
+    actualizarEstadosBatalla();
+  }
+}
+
+actualizar();
+</script>
+</body>
+</html>
