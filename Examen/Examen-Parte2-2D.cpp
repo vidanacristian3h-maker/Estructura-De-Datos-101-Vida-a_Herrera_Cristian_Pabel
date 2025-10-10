@@ -1,5 +1,6 @@
 #include <iostream>
-
+#include <cstdlib>
+#include <ctime>
 using namespace std;
 
 //Alumno: Cristian Pabel Vidaña Herrera

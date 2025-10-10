@@ -12,8 +12,6 @@ using namespace std;
 //3D ordenar subarreglos (5x5x5)
     int Arreglo[5][5][5];
 
-
-
 int main()
 {
     //para poner datos random en el arreglo

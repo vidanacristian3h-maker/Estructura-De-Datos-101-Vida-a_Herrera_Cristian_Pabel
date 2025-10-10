@@ -254,6 +254,7 @@ function colocarOReubicar(indice){
 
 // Ataque
 function atacar(indice){
+  const atacante= jugadorActual;
   const enemigoTablero = jugadorActual===1?tablero2:tablero1;
   const enemigoVida = jugadorActual===1?vidaBarcos[2]:vidaBarcos[1];
 
@@ -291,8 +292,10 @@ function atacar(indice){
 
   if(!barcoEncontrado || barcoEncontrado.vida<=0) jugadorActual = jugadorActual===1?2:1;
 
+  // Verificar victoria
   if(verificarVictoria(enemigoTablero)){
-    alert("¡Jugador "+jugadorActual+" gana!");
+    alert("¡Jugador "+atacante+" gana!");
+    turnoEl.textContent = `¡Jugador ${jugadorActual} gana!`;
     batalla.classList.remove("activo");
   }
 
