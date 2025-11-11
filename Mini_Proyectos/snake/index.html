@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake Game Simple</title>
+<style>
+  body {
+    background-color: #111;
+    color: white;
+    font-family: Arial;
+    text-align: center;
+  }
+  canvas {
+    background-color: #000;
+    display: block;
+    margin: 20px auto;
+    border: 2px solid #555;
+  }
+  button {
+    margin: 5px;
+    padding: 10px 20px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #555;
+  }
+</style>
+</head>
+<body>
+<h1>🐍 Snake Game</h1>
+<canvas id="gameCanvas" width="400" height="400"></canvas>
+
+<p>
+  Puntaje: <span id="score">0</span> | 
+  Nivel: <span id="level">1</span>
+</p>
+
+<button id="btnIniciar">🎮 Iniciar Juego</button>
+<button id="btnReiniciar">🔁 Reiniciar</button>
+
+<h3>Ranking</h3>
+<ol id="ranking"></ol>
+
+<script>
+class Nodo {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.next = null;
+  }
+}
+
+class Snake {
+  constructor() {
+    this.head = new Nodo(10, 10);
+    this.length = 5;
+    this.dir = { x: 1, y: 0 };
+
+    let actual = this.head;
+    for (let i = 1; i < this.length; i++) {
+      actual.next = new Nodo(10 - i, 10);
+      actual = actual.next;
+    }
+  }
+
+  mover() {
+    let newX = this.head.x + this.dir.x;
+    let newY = this.head.y + this.dir.y;
+
+    // Reaparición en bordes
+    if (newX < 0) newX = 19;
+    if (newX > 19) newX = 0;
+    if (newY < 0) newY = 19;
+    if (newY > 19) newY = 0;
+
+    let newHead = new Nodo(newX, newY);
+    newHead.next = this.head;
+    this.head = newHead;
+
+    // eliminar cola
+    let actual = this.head;
+    let count = 1;
+    while (actual.next && count < this.length) {
+      actual = actual.next;
+      count++;
+    }
+    actual.next = null;
+  }
+
+  chocaConSigoMismo() {
+    let actual = this.head.next;
+    while (actual) {
+      if (this.head.x === actual.x && this.head.y === actual.y) return true;
+      actual = actual.next;
+    }
+    return false;
+  }
+
+  obtenerCuerpo() {
+    let partes = [];
+    let actual = this.head;
+    while (actual) {
+      partes.push({ x: actual.x, y: actual.y });
+      actual = actual.next;
+    }
+    return partes;
+  }
+}
+
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const scoreEl = document.getElementById("score");
+const levelEl = document.getElementById("level");
+const rankingEl = document.getElementById("ranking");
+const btnIniciar = document.getElementById("btnIniciar");
+const btnReiniciar = document.getElementById("btnReiniciar");
+
+let snake;
+let comida;
+let trampas = [];
+let score = 0;
+let nivel = 1;
+let velocidad = 300;
+let intervalo;
+let ranking = [];
+let juegoIniciado = false;
+
+function generarPosicionAleatoria() {
+  return { x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20) };
+}
+
+function dibujar() {
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Comida (verde)
+  ctx.fillStyle = "green";
+  ctx.fillRect(comida.x * 20, comida.y * 20, 20, 20);
+
+  // Trampas (rojas)
+  ctx.fillStyle = "red";
+  for (let t of trampas) {
+    ctx.fillRect(t.x * 20, t.y * 20, 20, 20);
+  }
+
+  // Snake (azul)
+  ctx.fillStyle = "blue";
+  let partes = snake.obtenerCuerpo();
+  for (let p of partes) {
+    ctx.fillRect(p.x * 20, p.y * 20, 20, 20);
+  }
+}
+
+function actualizar() {
+  snake.mover();
+
+  // Comer
+  if (snake.head.x === comida.x && snake.head.y === comida.y) {
+    snake.length++;
+    score += 10;
+    comida = generarPosicionAleatoria();
+
+    // Subir de nivel si llega a tamaño 15
+    if (snake.length >= 15) {
+      nivel++;
+      levelEl.textContent = nivel;
+      velocidad = Math.max(50, velocidad - 20);
+      reiniciarNivel();
+      clearInterval(intervalo);
+      intervalo = setInterval(juego, velocidad);
+
+      // 🟥 Trampas: primera en nivel 2, luego cada 5 niveles
+      if (nivel === 2 || (nivel > 2 && (nivel - 2) % 5 === 0)) {
+        trampas.push(generarPosicionAleatoria());
+      }
+    }
+  }
+
+  // Tocar trampa
+  for (let i = 0; i < trampas.length; i++) {
+    if (snake.head.x === trampas[i].x && snake.head.y === trampas[i].y) {
+      snake.length--;
+      score -= 5;
+      trampas[i] = generarPosicionAleatoria();
+    }
+  }
+
+  // Perder
+  if (snake.chocaConSigoMismo() || snake.length <= 0) {
+    terminarJuego();
+  }
+
+  scoreEl.textContent = score;
+  dibujar();
+}
+
+function reiniciarNivel() {
+  snake = new Snake();
+  comida = generarPosicionAleatoria();
+}
+
+function terminarJuego() {
+  clearInterval(intervalo);
+  alert(`Perdiste. Puntaje final: ${score}`);
+  ranking.push(score);
+  ranking.sort((a, b) => b - a);
+  actualizarRanking();
+  juegoIniciado = false;
+}
+
+function reiniciarJuego() {
+  clearInterval(intervalo);
+  snake = new Snake();
+  comida = generarPosicionAleatoria();
+  trampas = []; // 🔹 sin trampas al inicio
+  score = 0;
+  nivel = 1;
+  velocidad = 300;
+  scoreEl.textContent = score;
+  levelEl.textContent = nivel;
+  dibujar();
+  juegoIniciado = false;
+}
+
+function actualizarRanking() {
+  rankingEl.innerHTML = "";
+  ranking.slice(0, 5).forEach((p, i) => {
+    const li = document.createElement("li");
+    li.textContent = `#${i + 1} - ${p} puntos`;
+    rankingEl.appendChild(li);
+  });
+}
+
+function juego() {
+  actualizar();
+}
+
+// --- Controles ---
+document.addEventListener("keydown", (e) => {
+  if (!juegoIniciado) return;
+  if (e.key === "ArrowUp" && snake.dir.y === 0) snake.dir = { x: 0, y: -1 };
+  if (e.key === "ArrowDown" && snake.dir.y === 0) snake.dir = { x: 0, y: 1 };
+  if (e.key === "ArrowLeft" && snake.dir.x === 0) snake.dir = { x: -1, y: 0 };
+  if (e.key === "ArrowRight" && snake.dir.x === 0) snake.dir = { x: 1, y: 0 };
+});
+
+// --- Botones ---
+btnIniciar.addEventListener("click", () => {
+  if (!juegoIniciado) {
+    reiniciarJuego();
+    juegoIniciado = true;
+    intervalo = setInterval(juego, velocidad);
+  }
+});
+
+btnReiniciar.addEventListener("click", () => {
+  reiniciarJuego();
+});
+</script>
+</body>
+</html>
