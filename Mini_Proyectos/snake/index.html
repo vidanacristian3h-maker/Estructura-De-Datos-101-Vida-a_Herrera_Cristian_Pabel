@@ -165,20 +165,35 @@ function actualizar() {
     score += 10;
     comida = generarPosicionAleatoria();
 
-    // Subir de nivel si llega a tamaño 15
-    if (snake.length >= 15) {
-      nivel++;
-      levelEl.textContent = nivel;
-      velocidad = Math.max(50, velocidad - 20);
-      reiniciarNivel();
-      clearInterval(intervalo);
-      intervalo = setInterval(juego, velocidad);
+    // 🟥 Generar una trampa nueva cada vez que come
+    trampas.push(generarPosicionAleatoria());
 
-      // 🟥 Trampas: primera en nivel 2, luego cada 5 niveles
-      if (nivel === 2 || (nivel > 2 && (nivel - 2) % 5 === 0)) {
-        trampas.push(generarPosicionAleatoria());
-      }
+// Subir de nivel si llega a tamaño 15
+if (snake.length >= 15) {
+  nivel++;
+  levelEl.textContent = nivel;
+  velocidad = Math.max(50, velocidad - 20);
+  reiniciarNivel();
+  clearInterval(intervalo);
+  intervalo = setInterval(juego, velocidad);
+
+  // 🔹 Al subir de nivel, eliminar trampas anteriores
+  trampas = [];
+
+  // 🔹 Nivel 2 → 1 trampa base
+  if (nivel === 2) {
+    trampas.push(generarPosicionAleatoria());
+  }
+  // 🔹 Cada 3 niveles después del 2 → agregar una trampa adicional
+  else if (nivel > 2 && (nivel - 2) % 3 === 0) {
+    let cantidadTrampas = Math.floor((nivel - 2) / 3) + 1; // ejemplo: nivel 5→2 trampas, 8→3 trampas...
+    for (let i = 0; i < cantidadTrampas; i++) {
+      trampas.push(generarPosicionAleatoria());
     }
+  }
+}
+
+
   }
 
   // Tocar trampa
@@ -217,7 +232,7 @@ function reiniciarJuego() {
   clearInterval(intervalo);
   snake = new Snake();
   comida = generarPosicionAleatoria();
-  trampas = []; // 🔹 sin trampas al inicio
+  trampas = []; // sin trampas al inicio
   score = 0;
   nivel = 1;
   velocidad = 300;
